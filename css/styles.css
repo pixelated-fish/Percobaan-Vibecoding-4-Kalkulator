@@ -1,0 +1,543 @@
+/* =====================================================================
+   Kalkulator Ilmiah — gaya antarmuka
+   Struktur:
+   1. Variabel tema (gelap default, terang lewat [data-theme="light"])
+   2. Kerangka halaman + kartu
+   3. Layar (ekspresi, hasil, galat)
+   4. Keypad
+   5. Panel riwayat
+   6. Responsif
+   ===================================================================== */
+
+/* 1. Variabel tema ---------------------------------------------------- */
+:root {
+  color-scheme: dark;
+
+  --bg: #080d19;
+  --glow-a: rgba(91, 140, 255, 0.30);
+  --glow-b: rgba(255, 105, 180, 0.16);
+
+  --surface: rgba(19, 26, 45, 0.88);
+  --surface-border: rgba(148, 170, 220, 0.14);
+  --display-bg: rgba(10, 16, 30, 0.72);
+
+  --text: #eef3ff;
+  --muted: #8ea0c4;
+
+  --accent: #5b8cff;
+  --accent-strong: #3f6ff0;
+  --accent-text: #ffffff;
+
+  --key-num: rgba(33, 44, 71, 0.92);
+  --key-num-hover: rgba(46, 60, 94, 1);
+  --key-fn: rgba(27, 37, 61, 0.75);
+  --key-fn-hover: rgba(38, 51, 82, 1);
+  --key-fn-text: #9cc8ff;
+  --key-op: rgba(38, 56, 96, 0.95);
+  --key-op-hover: rgba(50, 72, 120, 1);
+  --key-op-text: #cfe0ff;
+  --key-action-text: #ffb4be;
+
+  --danger: #ff8b98;
+  --shadow: 0 30px 70px rgba(2, 7, 18, 0.6);
+  --radius-lg: 26px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #eef2fb;
+  --glow-a: rgba(91, 140, 255, 0.22);
+  --glow-b: rgba(255, 122, 182, 0.18);
+
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-border: rgba(22, 38, 74, 0.10);
+  --display-bg: rgba(246, 249, 255, 0.95);
+
+  --text: #101a33;
+  --muted: #62708f;
+
+  --key-num: #ffffff;
+  --key-num-hover: #f1f5ff;
+  --key-fn: #eef3fd;
+  --key-fn-hover: #e3ebfc;
+  --key-fn-text: #2f62c8;
+  --key-op: #e2ebff;
+  --key-op-hover: #d5e2ff;
+  --key-op-text: #2b4f9e;
+  --key-action-text: #c94a5e;
+
+  --danger: #c6283d;
+  --shadow: 0 24px 60px rgba(35, 60, 110, 0.16);
+}
+
+/* 2. Kerangka halaman ------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 32px 20px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% -5%, var(--glow-a), transparent 45%),
+    radial-gradient(circle at 90% 10%, var(--glow-b), transparent 40%);
+  background-attachment: fixed;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 384px) minmax(0, 300px);
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  max-width: 720px;
+}
+
+.calculator,
+.history {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.calculator {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calculator__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+  color: var(--accent-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.brand__name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-actions {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.chip {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  min-width: 46px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--surface-border);
+  background: var(--key-fn);
+  color: var(--key-fn-text);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.chip:hover {
+  background: var(--key-fn-hover);
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip--icon {
+  min-width: 34px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.chip.is-rad {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* 3. Layar ------------------------------------------------------------ */
+.display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: var(--display-bg);
+  overflow: hidden;
+}
+
+.display__expression,
+.display__result,
+.display__error,
+.display__hint {
+  margin: 0;
+}
+
+.display__expression {
+  min-height: 22px;
+  font-size: 15px;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.display__expression::-webkit-scrollbar {
+  display: none;
+}
+
+.display__result {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  text-align: right;
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition: font-size 0.15s ease, color 0.15s ease;
+}
+
+.display__result::-webkit-scrollbar {
+  display: none;
+}
+
+.display__result.is-empty {
+  color: var(--muted);
+  opacity: 0.65;
+}
+
+.display__result.is-long {
+  font-size: 30px;
+}
+
+.display__result.is-short {
+  font-size: 22px;
+}
+
+.display__error {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--danger);
+  text-align: right;
+}
+
+.display__error[hidden] {
+  display: none;
+}
+
+.display__hint {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+  opacity: 0.75;
+  text-align: right;
+}
+
+/* 4. Keypad ----------------------------------------------------------- */
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-areas:
+    'ac    lpar    rpar    bksp   divide'
+    'sin   cos     tan     power  multiply'
+    'sqrt  square  pi      euler  subtract'
+    'n7    n8      n9      percent add'
+    'n4    n5      n6      mod    ans'
+    'n1    n2      n3      dot    equals'
+    'n0    n0      sign    factorial equals';
+  gap: 8px;
+}
+
+.key {
+  font: inherit;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+  min-height: 52px;
+  padding: 0 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--key-num);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, transform 0.09s ease, box-shadow 0.15s ease;
+}
+
+.key sup {
+  font-size: 0.68em;
+  vertical-align: super;
+}
+
+.key:hover {
+  background: var(--key-num-hover);
+}
+
+.key:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.key:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.key--num {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.key--fn {
+  font-size: 15px;
+  color: var(--key-fn-text);
+  background: var(--key-fn);
+}
+
+.key--fn:hover {
+  background: var(--key-fn-hover);
+}
+
+.key--op {
+  font-size: 19px;
+  color: var(--key-op-text);
+  background: var(--key-op);
+}
+
+.key--op:hover {
+  background: var(--key-op-hover);
+}
+
+.key--action {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--key-action-text);
+  background: var(--key-fn);
+}
+
+.key--action:hover {
+  background: var(--key-fn-hover);
+}
+
+.key--equals {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: linear-gradient(150deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 10px 24px rgba(63, 111, 240, 0.35);
+}
+
+.key--equals:hover {
+  background: linear-gradient(150deg, #6d9bff, var(--accent-strong));
+}
+
+.key--equals:active {
+  box-shadow: 0 4px 12px rgba(63, 111, 240, 0.35);
+}
+
+/* 5. Panel riwayat ---------------------------------------------------- */
+.history {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 660px;
+}
+
+.history__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.history__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.history__clear {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.history__clear:hover {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+.history__empty {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.history__empty[hidden] {
+  display: none;
+}
+
+.history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.history__item {
+  animation: history-in 0.2s ease;
+}
+
+@keyframes history-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.history__button {
+  font: inherit;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--key-fn);
+  color: var(--text);
+  text-align: right;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.history__button:hover {
+  background: var(--key-fn-hover);
+  border-color: var(--surface-border);
+}
+
+.history__button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.history__expression {
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history__result {
+  font-size: 15px;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 6. Responsif -------------------------------------------------------- */
+@media (max-width: 880px) {
+  body {
+    padding: 18px 12px 28px;
+  }
+
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 460px;
+  }
+
+  .calculator {
+    padding: 16px;
+  }
+
+  .display__result {
+    font-size: 34px;
+  }
+
+  .key {
+    min-height: 48px;
+  }
+
+  .history {
+    max-height: 280px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

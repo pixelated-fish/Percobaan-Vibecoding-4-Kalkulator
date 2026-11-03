@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Kalkulator ilmiah sederhana dengan riwayat, mode DEG/RAD, dan tema gelap/terang." />
+  <title>Kalkulator Ilmiah</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="calculator" aria-label="Kalkulator ilmiah">
+      <header class="calculator__top">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true">÷</span>
+          <span class="brand__name">Kalkulator Ilmiah</span>
+        </div>
+        <div class="top-actions">
+          <button id="angle-toggle" class="chip" type="button" aria-label="Mode sudut: derajat">DEG</button>
+          <button id="theme-toggle" class="chip chip--icon" type="button" aria-label="Ganti tema">☀</button>
+        </div>
+      </header>
+
+      <div class="display">
+        <p id="display-expression" class="display__expression"></p>
+        <p id="display-result" class="display__result is-empty" aria-live="polite">0</p>
+        <p id="display-error" class="display__error" role="alert" hidden></p>
+        <p class="display__hint">Enter = hasil &middot; Esc = AC &middot; P = &pi; &middot; klik riwayat untuk memakainya</p>
+      </div>
+
+      <div id="keypad" class="keypad">
+        <button type="button" class="key key--action" data-action="clear" style="grid-area: ac" aria-label="Hapus semua">AC</button>
+        <button type="button" class="key key--fn" data-key="(" style="grid-area: lpar" aria-label="Buka kurung">(</button>
+        <button type="button" class="key key--fn" data-key=")" style="grid-area: rpar" aria-label="Tutup kurung">)</button>
+        <button type="button" class="key key--fn" data-action="backspace" style="grid-area: bksp" aria-label="Hapus satu karakter">⌫</button>
+        <button type="button" class="key key--op" data-key="/" style="grid-area: divide" aria-label="Bagi">÷</button>
+
+        <button type="button" class="key key--fn" data-key="sin(" style="grid-area: sin" aria-label="Sinus">sin</button>
+        <button type="button" class="key key--fn" data-key="cos(" style="grid-area: cos" aria-label="Cosinus">cos</button>
+        <button type="button" class="key key--fn" data-key="tan(" style="grid-area: tan" aria-label="Tangen">tan</button>
+        <button type="button" class="key key--fn" data-key="^" style="grid-area: power" aria-label="Pangkat">x<sup>y</sup></button>
+        <button type="button" class="key key--op" data-key="*" style="grid-area: multiply" aria-label="Kali">×</button>
+
+        <button type="button" class="key key--fn" data-key="sqrt(" style="grid-area: sqrt" aria-label="Akar kuadrat">√</button>
+        <button type="button" class="key key--fn" data-key="^2" style="grid-area: square" aria-label="Kuadrat">x<sup>2</sup></button>
+        <button type="button" class="key key--fn" data-key="pi" style="grid-area: pi" aria-label="Pi">π</button>
+        <button type="button" class="key key--fn" data-key="e" style="grid-area: euler" aria-label="Bilangan Euler">e</button>
+        <button type="button" class="key key--op" data-key="-" style="grid-area: subtract" aria-label="Kurang">−</button>
+
+        <button type="button" class="key key--num" data-key="7" style="grid-area: n7">7</button>
+        <button type="button" class="key key--num" data-key="8" style="grid-area: n8">8</button>
+        <button type="button" class="key key--num" data-key="9" style="grid-area: n9">9</button>
+        <button type="button" class="key key--fn" data-key="%" style="grid-area: percent" aria-label="Persen">%</button>
+        <button type="button" class="key key--op" data-key="+" style="grid-area: add" aria-label="Tambah">+</button>
+
+        <button type="button" class="key key--num" data-key="4" style="grid-area: n4">4</button>
+        <button type="button" class="key key--num" data-key="5" style="grid-area: n5">5</button>
+        <button type="button" class="key key--num" data-key="6" style="grid-area: n6">6</button>
+        <button type="button" class="key key--fn" data-key="mod" style="grid-area: mod" aria-label="Sisa bagi (modulo)">mod</button>
+        <button type="button" class="key key--fn" data-key="ans" style="grid-area: ans" aria-label="Hasil sebelumnya">Ans</button>
+
+        <button type="button" class="key key--num" data-key="1" style="grid-area: n1">1</button>
+        <button type="button" class="key key--num" data-key="2" style="grid-area: n2">2</button>
+        <button type="button" class="key key--num" data-key="3" style="grid-area: n3">3</button>
+        <button type="button" class="key key--num" data-key="." style="grid-area: dot" aria-label="Titik desimal">.</button>
+        <button type="button" class="key key--equals" data-action="equals" style="grid-area: equals" aria-label="Hitung hasil">=</button>
+
+        <button type="button" class="key key--num" data-key="0" style="grid-area: n0">0</button>
+        <button type="button" class="key key--fn" data-action="sign" style="grid-area: sign" aria-label="Ubah tanda plus minus">±</button>
+        <button type="button" class="key key--fn" data-key="!" style="grid-area: factorial" aria-label="Faktorial">x!</button>
+      </div>
+    </section>
+
+    <aside class="history" aria-label="Riwayat perhitungan">
+      <header class="history__header">
+        <h2 class="history__title">Riwayat</h2>
+        <button id="clear-history" class="history__clear" type="button">Hapus</button>
+      </header>
+      <p id="history-empty" class="history__empty">Belum ada perhitungan. Hasil yang kamu hitung akan muncul di sini.</p>
+      <ul id="history-list" class="history__list"></ul>
+    </aside>
+  </main>
+
+  <script src="js/engine.js"></script>
+  <script src="js/calculator.js"></script>
+</body>
+</html>
